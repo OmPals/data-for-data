@@ -10,8 +10,6 @@ Original file is located at
 from google.colab import drive
 drive.mount('/content/drive')
 
-
-
 from keras.models import Sequential
 from keras.models import Model
 from keras.layers import *
@@ -107,10 +105,17 @@ class GAN():
 
     def train(self, epochs, batch_size, save_interval):
         (X_train, Y_train), (X_test, Y_test) = mnist.load_data()
-        X_train = (X_train.astype(np.float32) - 127.5) / 127.5
-        X_train=X_train.reshape([-1,28,28,1])
-        X_test=X_test.reshape([-1,28,28,1])
         print(X_train)
+        # X_train=X_train[1]
+        # print("Let's see what the f**k happens!")
+        # print(X_train)
+        print(X_train.shape)
+        X_train=np.asarray(X_train)#[X_train.astype(int)]
+      #  X_train = (X_train.astype(np.float32) - 127.5) / 127.5
+      #  X_train=X_train.reshape(X_train,(28,28,1))
+        #X_test=X_test.reshape([-1,28,28,1])
+        print(X_train)
+        print(X_train.shape)
         # X_train = np.expand_dims(X_train, axis=3)
         # #print(X_train)
         #print(X_train.shape)
@@ -121,13 +126,13 @@ class GAN():
         for epoch in range(epochs):
 
             #dicriminator training
-            idx = np.random.randint(0, X_train.shape[0], half_batch)
+            idx = np.random.randint(0, X_train.shape[0], half_batch, dtype='int')
             imgs = X_train[idx]
             noise = np.random.normal(0, 1, (half_batch, 100))
             gen_imgs = self.generator.predict(noise)
 
-            d_loss_real = self.discriminator.train_on_batch(imgs, np.ones((half_batch, 1)))
-            d_loss_fake = self.discriminator.train_on_batch(gen_imgs, np.zeros((half_batch, 1)))
+            d_loss_real = self.discriminator.train_on_batch(imgs,np.ones(half_batch),0,0)
+            d_loss_fake = self.discriminator.train_on_batch(gen_imgs, np.zeros(half_batch))
             d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
 
             #generator training
@@ -160,15 +165,4 @@ class GAN():
 
 if __name__ == '__main__':
     gan = GAN()
-    gan.train(epochs=30000, batch_size=36, save_interval=200)
-
-a = np.zeros([2,3])
-a[0][0]=1
-a[0][1]=2
-a[0][2]=1
-a[1][0]=2
-a[1][1]=1
-a[1][2]=2
-
-b = a.reshape(-1,2,3)
-b
+    gan.train(epochs=1, batch_size=120000, save_interval=200)
